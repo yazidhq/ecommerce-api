@@ -7,9 +7,27 @@ const {
   deleteData,
 } = require("../controllers/product.controller");
 
-const router = require("./auth.route");
+const {
+  authentication,
+  restrictTo,
+} = require("../middleware/authentication.middleware");
 
-router.route("/").post(createData).get(getsData).delete(truncateData);
-router.route("/:id").get(getData).patch(updateData).delete(deleteData);
+const router = require("express").Router();
 
-module.exports = router;
+const base_url = "/api/product";
+
+module.exports = (app) => {
+  router
+    .route(`${base_url}/`)
+    .post(authentication, restrictTo("1"), createData)
+    .get(authentication, restrictTo("1"), getsData)
+    .delete(authentication, restrictTo("1"), truncateData);
+
+  router
+    .route(`${base_url}/:id`)
+    .get(authentication, restrictTo("1"), getData)
+    .patch(authentication, restrictTo("1"), updateData)
+    .delete(authentication, restrictTo("1"), deleteData);
+
+  app.use(router);
+};
