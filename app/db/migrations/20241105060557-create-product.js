@@ -30,9 +30,6 @@ module.exports = {
       productUrl: {
         type: Sequelize.STRING,
       },
-      category: {
-        type: Sequelize.ARRAY(Sequelize.INTEGER),
-      },
       tag: {
         type: Sequelize.ARRAY(Sequelize.STRING),
       },

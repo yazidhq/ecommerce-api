@@ -90,15 +90,6 @@ module.exports = sequelize.define(
         },
       },
     },
-    category: {
-      type: DataTypes.ARRAY(DataTypes.INTEGER),
-      allowNull: false,
-      validate: {
-        notNull: {
-          msg: "category cannot be null",
-        },
-      },
-    },
     tag: {
       type: DataTypes.ARRAY(DataTypes.STRING),
       allowNull: false,
