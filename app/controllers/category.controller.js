@@ -1,7 +1,21 @@
+const { Op } = require("sequelize");
 const category = require("../db/models/category");
 const user = require("../db/models/user");
 const AppError = require("../utils/app.error");
 const catchAsync = require("../utils/catch.async.");
+
+const fetchAdminId = async () => {
+  const fetch = await user.findAll({
+    where: {
+      userType: "0",
+    },
+    attributes: ["id"],
+  });
+
+  const adminId = fetch.map((value) => value.id);
+
+  return adminId;
+};
 
 const createData = catchAsync(async (req, res, next) => {
   const data = req.body;
@@ -26,9 +40,15 @@ const getsData = catchAsync(async (req, res, next) => {
   const userId = req.user.id;
 
   const result = await category.findAll({
-    include: { model: user, attributes: ["firstName", "lastName", "email"] },
+    include: {
+      model: user,
+      attributes: ["userType", "firstName", "lastName", "email"],
+    },
     where: {
-      createdBy: userId,
+      [Op.or]: [
+        { createdBy: userId },
+        { createdBy: { [Op.or]: await fetchAdminId() } },
+      ],
     },
   });
 
@@ -46,7 +66,10 @@ const getData = catchAsync(async (req, res, next) => {
     include: { model: user, attributes: ["firstName", "lastName", "email"] },
     where: {
       id: categoryId,
-      createdBy: userId,
+      [Op.or]: [
+        { createdBy: userId },
+        { createdBy: { [Op.or]: await fetchAdminId() } },
+      ],
     },
   });
 
