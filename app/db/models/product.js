@@ -124,7 +124,6 @@ module.exports = sequelize.define(
       type: DataTypes.DATE,
     },
     deletedAt: {
-      allowNull: false,
       type: DataTypes.DATE,
     },
   },
