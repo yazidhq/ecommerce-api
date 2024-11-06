@@ -3,6 +3,8 @@ const category = require("../db/models/category");
 const user = require("../db/models/user");
 const AppError = require("../utils/app.error");
 const catchAsync = require("../utils/catch.async.");
+const productcategory = require("../db/models/productcategory");
+const product = require("../db/models/product");
 
 const fetchAdminId = async () => {
   const fetch = await user.findAll({
@@ -38,19 +40,35 @@ const createData = catchAsync(async (req, res, next) => {
 
 const getsData = catchAsync(async (req, res, next) => {
   const userId = req.user.id;
+  const userType = req.user.userType;
 
-  const result = await category.findAll({
-    include: {
-      model: user,
-      attributes: ["userType", "firstName", "lastName", "email"],
-    },
-    where: {
-      [Op.or]: [
-        { createdBy: userId },
-        { createdBy: { [Op.or]: await fetchAdminId() } },
-      ],
-    },
-  });
+  const result =
+    userType == "0"
+      ? await category.findAll({
+          include: [
+            {
+              model: user,
+              attributes: ["userType", "firstName", "lastName", "email"],
+            },
+            {
+              model: productcategory,
+              attributes: ["productId"],
+              include: [{ model: product }],
+            },
+          ],
+        })
+      : await category.findAll({
+          include: {
+            model: user,
+            attributes: ["userType", "firstName", "lastName", "email"],
+          },
+          where: {
+            [Op.or]: [
+              { createdBy: userId },
+              { createdBy: { [Op.or]: await fetchAdminId() } },
+            ],
+          },
+        });
 
   return res.status(200).json({
     status: "success",
@@ -60,18 +78,40 @@ const getsData = catchAsync(async (req, res, next) => {
 
 const getData = catchAsync(async (req, res, next) => {
   const userId = req.user.id;
+  const userType = req.user.userType;
   const categoryId = req.params.id;
 
-  const result = await category.findOne({
-    include: { model: user, attributes: ["firstName", "lastName", "email"] },
-    where: {
-      id: categoryId,
-      [Op.or]: [
-        { createdBy: userId },
-        { createdBy: { [Op.or]: await fetchAdminId() } },
-      ],
-    },
-  });
+  const result =
+    userType == "0"
+      ? await category.findAll({
+          include: [
+            {
+              model: user,
+              attributes: ["userType", "firstName", "lastName", "email"],
+            },
+            {
+              model: productcategory,
+              attributes: ["productId"],
+              include: [{ model: product }],
+            },
+          ],
+          where: {
+            id: categoryId,
+          },
+        })
+      : await category.findOne({
+          include: {
+            model: user,
+            attributes: ["firstName", "lastName", "email"],
+          },
+          where: {
+            id: categoryId,
+            [Op.or]: [
+              { createdBy: userId },
+              { createdBy: { [Op.or]: await fetchAdminId() } },
+            ],
+          },
+        });
 
   if (!result) {
     return next(new AppError("Invalid category id", 400));
