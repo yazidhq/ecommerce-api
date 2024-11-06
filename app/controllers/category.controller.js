@@ -22,7 +22,7 @@ const createData = catchAsync(async (req, res, next) => {
   const userId = req.user.id;
 
   const create = await category.create({
-    name: data.name,
+    ...data,
     createdBy: userId,
   });
 
@@ -52,7 +52,7 @@ const getsData = catchAsync(async (req, res, next) => {
     },
   });
 
-  return res.json({
+  return res.status(200).json({
     status: "success",
     data: result,
   });
@@ -77,7 +77,7 @@ const getData = catchAsync(async (req, res, next) => {
     return next(new AppError("Invalid category id", 400));
   }
 
-  return res.json({
+  return res.status(200).json({
     status: "success",
     data: result,
   });
@@ -87,6 +87,7 @@ const updateData = catchAsync(async (req, res, next) => {
   const data = req.body;
   const userId = req.user.id;
   const categoryId = req.params.id;
+
   const getCategory = await category.findOne({
     where: {
       id: categoryId,
@@ -99,7 +100,7 @@ const updateData = catchAsync(async (req, res, next) => {
   }
 
   const update = await getCategory.update({
-    name: data.name,
+    ...data,
     createdBy: userId,
   });
 
@@ -107,7 +108,7 @@ const updateData = catchAsync(async (req, res, next) => {
     return next(new AppError("Failed update the category", 400));
   }
 
-  return res.status(201).json({
+  return res.status(200).json({
     status: "success",
     data: update,
   });
@@ -127,7 +128,7 @@ const truncateData = catchAsync(async (req, res, next) => {
     return next(new AppError("Failed truncate the category", 400));
   }
 
-  return res.status(201).json({
+  return res.status(200).json({
     status: "success",
     data: "Data truncated successfully",
   });
@@ -136,6 +137,7 @@ const truncateData = catchAsync(async (req, res, next) => {
 const deleteData = catchAsync(async (req, res, next) => {
   const userId = req.user.id;
   const categoryId = req.params.id;
+
   const getCategory = await category.findOne({
     where: {
       id: categoryId,
@@ -153,7 +155,7 @@ const deleteData = catchAsync(async (req, res, next) => {
     return next(new AppError("Failed delete the category", 400));
   }
 
-  return res.status(201).json({
+  return res.status(200).json({
     status: "success",
     data: "Data deleted successfully",
   });
