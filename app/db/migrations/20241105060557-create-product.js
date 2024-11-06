@@ -31,7 +31,7 @@ module.exports = {
         type: Sequelize.STRING,
       },
       category: {
-        type: Sequelize.ARRAY(Sequelize.STRING),
+        type: Sequelize.ARRAY(Sequelize.INTEGER),
       },
       tag: {
         type: Sequelize.ARRAY(Sequelize.STRING),
