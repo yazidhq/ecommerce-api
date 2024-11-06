@@ -1,4 +1,6 @@
+const category = require("../db/models/category");
 const product = require("../db/models/product");
+const productcategory = require("../db/models/productcategory");
 const user = require("../db/models/user");
 const AppError = require("../utils/app.error");
 const catchAsync = require("../utils/catch.async.");
@@ -7,13 +9,34 @@ const createData = catchAsync(async (req, res, next) => {
   const data = req.body;
   const userId = req.user.id;
 
+  const { categoryIds, ...productData } = data;
+
   const create = await product.create({
-    ...data,
+    ...productData,
     createdBy: userId,
   });
 
   if (!create) {
     return next(new AppError("Failed to create the product"), 400);
+  }
+
+  if (categoryIds) {
+    const validCategories = await category.findAll({
+      where: {
+        id: categoryIds,
+      },
+    });
+
+    if (validCategories.length !== categoryIds.length) {
+      return next(new AppError("Some category id are invalid"), 400);
+    }
+
+    for (let category of validCategories) {
+      await productcategory.create({
+        productId: create.id,
+        categoryId: category.id,
+      });
+    }
   }
 
   return res.status(201).json({
@@ -26,7 +49,14 @@ const getsData = catchAsync(async (req, res, next) => {
   const userId = req.user.id;
 
   const result = await product.findAll({
-    include: { model: user, attributes: ["firstName", "lastName", "email"] },
+    include: [
+      { model: user, attributes: ["firstName", "lastName", "email"] },
+      {
+        model: productcategory,
+        attributes: ["categoryId"],
+        include: [{ model: category, attributes: ["name"] }],
+      },
+    ],
     where: { createdBy: userId },
   });
 
@@ -41,7 +71,14 @@ const getData = catchAsync(async (req, res, next) => {
   const productId = req.params.id;
 
   const result = await product.findOne({
-    include: { model: user, attributes: ["firstName", "lastName", "email"] },
+    include: [
+      { model: user, attributes: ["firstName", "lastName", "email"] },
+      {
+        model: productcategory,
+        attributes: ["categoryId"],
+        include: [{ model: category, attributes: ["name"] }],
+      },
+    ],
     where: {
       id: productId,
       createdBy: userId,
@@ -74,13 +111,52 @@ const updateData = catchAsync(async (req, res, next) => {
     return next(new AppError("Invalid product id", 400));
   }
 
+  const { categoryIds, ...productData } = data;
+
   const update = await getProduct.update({
-    ...data,
+    ...productData,
     createdBy: userId,
   });
 
   if (!update) {
     return next(new AppError("Failed update the product", 400));
+  }
+
+  if (categoryIds) {
+    const validCategories = await category.findAll({
+      where: {
+        id: categoryIds,
+      },
+    });
+
+    if (validCategories.length !== categoryIds.length) {
+      return next(new AppError("Some category id are invalid"), 400);
+    }
+
+    const existCategory = await productcategory.findAll({
+      where: {
+        productId: update.id,
+      },
+    });
+
+    if (existCategory.length !== 0) {
+      const destroyCategory = await productcategory.destroy({
+        where: {
+          productId: update.id,
+        },
+      });
+
+      if (!destroyCategory) {
+        return next(new AppError("Failed delete the product categories", 400));
+      }
+    }
+
+    for (let category of validCategories) {
+      await productcategory.create({
+        productId: update.id,
+        categoryId: category.id,
+      });
+    }
   }
 
   return res.status(200).json({
@@ -128,6 +204,24 @@ const deleteData = catchAsync(async (req, res, next) => {
 
   if (!destroy) {
     return next(new AppError("Failed delete the product", 400));
+  }
+
+  const existCategory = await productcategory.findAll({
+    where: {
+      productId: productId,
+    },
+  });
+
+  if (existCategory.length !== 0) {
+    const destroyCategory = await productcategory.destroy({
+      where: {
+        productId: productId,
+      },
+    });
+
+    if (!destroyCategory) {
+      return next(new AppError("Failed delete the product categories", 400));
+    }
   }
 
   return res.status(200).json({
