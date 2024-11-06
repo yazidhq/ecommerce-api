@@ -33,7 +33,7 @@ const getsData = catchAsync(async (req, res, next) => {
   const userId = req.user.id;
 
   const result = await product.findAll({
-    include: user,
+    include: { model: user, attributes: ["firstName", "lastName", "email"] },
     where: { createdBy: userId },
   });
 
@@ -45,7 +45,9 @@ const getsData = catchAsync(async (req, res, next) => {
 
 const getData = catchAsync(async (req, res, next) => {
   const productId = req.params.id;
-  const result = await product.findByPk(productId, { include: user });
+  const result = await product.findByPk(productId, {
+    include: { model: user, attributes: ["firstName", "lastName", "email"] },
+  });
 
   if (!result) {
     return next(new AppError("Invalid product id", 400));
@@ -74,6 +76,7 @@ const updateData = catchAsync(async (req, res, next) => {
 
   const update = await getProduct.update({
     title: data.title,
+    isFeatured: data.isFeatured,
     productImage: data.productImage,
     price: data.price,
     shortDescription: data.shortDescription,
