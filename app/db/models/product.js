@@ -130,6 +130,6 @@ module.exports = sequelize.define(
   {
     paranoid: true,
     freezeTableName: true,
-    modelName: "product",
+    tableName: "product",
   }
 );
