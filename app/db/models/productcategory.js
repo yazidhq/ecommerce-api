@@ -1,9 +1,8 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../../config/database");
-const productcategory = require("./productcategory");
 
-const category = sequelize.define(
-  "category",
+const productcategory = sequelize.define(
+  "productcategory",
   {
     id: {
       allowNull: false,
@@ -11,23 +10,28 @@ const category = sequelize.define(
       primaryKey: true,
       type: DataTypes.INTEGER,
     },
-    name: {
-      type: DataTypes.STRING,
+    productId: {
+      type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
         notNull: {
-          msg: "Category name cannot be null",
+          msg: "ProductId cannot be null",
         },
         notEmpty: {
-          msg: "Category name cannot be empty",
+          msg: "ProductId cannot be empty",
         },
       },
     },
-    createdBy: {
+    categoryId: {
       type: DataTypes.INTEGER,
-      references: {
-        model: "user",
-        key: "id",
+      allowNull: false,
+      validate: {
+        notNull: {
+          msg: "CategoryId cannot be null",
+        },
+        notEmpty: {
+          msg: "CategoryId cannot be empty",
+        },
       },
     },
     createdAt: {
@@ -45,11 +49,8 @@ const category = sequelize.define(
   {
     paranoid: true,
     freezeTableName: true,
-    tableName: "category",
+    tableName: "productcategory",
   }
 );
 
-category.hasMany(productcategory, { foreignKey: "categoryId" });
-productcategory.belongsTo(category, { foreignKey: "categoryId" });
-
-module.exports = category;
+module.exports = productcategory;
