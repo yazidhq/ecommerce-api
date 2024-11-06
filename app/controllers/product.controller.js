@@ -44,9 +44,15 @@ const getsData = catchAsync(async (req, res, next) => {
 });
 
 const getData = catchAsync(async (req, res, next) => {
+  const userId = req.user.id;
   const productId = req.params.id;
-  const result = await product.findByPk(productId, {
+
+  const result = await product.findOne({
     include: { model: user, attributes: ["firstName", "lastName", "email"] },
+    where: {
+      id: productId,
+      createdBy: userId,
+    },
   });
 
   if (!result) {
@@ -98,8 +104,13 @@ const updateData = catchAsync(async (req, res, next) => {
 });
 
 const truncateData = catchAsync(async (req, res, next) => {
+  const userId = req.user.id;
+
   const truncate = await product.destroy({
-    truncate: true,
+    where: {
+      createdBy: userId,
+    },
+    force: true,
   });
 
   if (!truncate) {
