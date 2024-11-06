@@ -44,7 +44,7 @@ const signUp = catchAsync(async (req, res, next) => {
   });
 });
 
-const logIn = catchAsync(async (req, res, next) => {
+const signIn = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -67,4 +67,4 @@ const logIn = catchAsync(async (req, res, next) => {
   });
 });
 
-module.exports = { signUp, logIn };
+module.exports = { signUp, signIn };

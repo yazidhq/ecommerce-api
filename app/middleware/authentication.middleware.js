@@ -13,7 +13,7 @@ const authentication = catchAsync(async (req, res, next) => {
   }
 
   if (!token) {
-    return next(new AppError("Please login to access", 401));
+    return next(new AppError("Please signin to access", 401));
   }
 
   const tokenDetail = jwt.verify(token, process.env.JWT_SECRET_KEY);
