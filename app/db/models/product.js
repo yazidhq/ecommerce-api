@@ -91,15 +91,6 @@ const product = sequelize.define(
         },
       },
     },
-    tag: {
-      type: DataTypes.ARRAY(DataTypes.STRING),
-      allowNull: false,
-      validate: {
-        notNull: {
-          msg: "Tag cannot be null",
-        },
-      },
-    },
     createdBy: {
       type: DataTypes.INTEGER,
       references: {
