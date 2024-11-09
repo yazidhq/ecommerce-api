@@ -4,15 +4,21 @@ const productcategory = require("../db/models/productcategory");
 const user = require("../db/models/user");
 const AppError = require("../utils/app.error");
 const catchAsync = require("../utils/catch.async.");
+const { deleteOldFiles } = require("./helper.controller");
 
 const createData = catchAsync(async (req, res, next) => {
   const data = req.body;
   const userId = req.user.id;
 
+  const imagePaths = req.files.map(
+    (file) => `${baseProtocol}/upload/products/${file.filename}`
+  );
+
   const { categoryIds, ...productData } = data;
 
   const create = await product.create({
     ...productData,
+    productImage: imagePaths,
     createdBy: userId,
   });
 
@@ -113,10 +119,25 @@ const updateData = catchAsync(async (req, res, next) => {
 
   const { categoryIds, ...productData } = data;
 
-  const update = await getProduct.update({
-    ...productData,
-    createdBy: userId,
-  });
+  let update = null;
+  if (req.files) {
+    const imagePaths = req.files.map((file) => {
+      return `${baseProtocol}/upload/products/${file.filename}`;
+    });
+
+    deleteOldFiles(getProduct.productImage);
+
+    update = await getProduct.update({
+      ...productData,
+      productImage: imagePaths,
+      createdBy: userId,
+    });
+  } else {
+    update = await getProduct.update({
+      ...productData,
+      createdBy: userId,
+    });
+  }
 
   if (!update) {
     return next(new AppError("Failed update the product", 400));
@@ -168,6 +189,14 @@ const updateData = catchAsync(async (req, res, next) => {
 const truncateData = catchAsync(async (req, res, next) => {
   const userId = req.user.id;
 
+  const getProduct = await product.findOne({
+    where: {
+      createdBy: userId,
+    },
+  });
+
+  deleteOldFiles(getProduct.productImage);
+
   const truncate = await product.destroy({
     where: {
       createdBy: userId,
@@ -199,6 +228,8 @@ const deleteData = catchAsync(async (req, res, next) => {
   if (!getProduct) {
     return next(new AppError("Invalid product id", 400));
   }
+
+  deleteOldFiles(getProduct.productImage);
 
   const destroy = getProduct.destroy();
 
