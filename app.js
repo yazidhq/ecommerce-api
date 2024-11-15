@@ -2,9 +2,15 @@ require("dotenv").config({ path: `${process.cwd()}/.env` });
 
 const express = require("express");
 const app = express();
+const helmet = require("helmet");
+const limiter = require("./app/middleware/limitter.middleware");
+const sanitizeGlobal = require("./app/middleware/sanitize.middleware");
 
+app.use(helmet());
 app.use(express.json());
 app.use(express.static("public"));
+app.use(limiter);
+app.use(sanitizeGlobal);
 
 const { glob } = require("glob");
 const path = require("path");
