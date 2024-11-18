@@ -5,12 +5,17 @@ const app = express();
 const helmet = require("helmet");
 const limiter = require("./app/middleware/limitter.middleware");
 const sanitizeGlobal = require("./app/middleware/sanitize.middleware");
+const logger = require("./app/utils/logger");
 
 app.use(helmet());
 app.use(express.json());
 app.use(express.static("public"));
 app.use(limiter);
 app.use(sanitizeGlobal);
+app.use((req, res, next) => {
+  logger.info(`${req.method} ${req.url}`);
+  next();
+});
 
 const { glob } = require("glob");
 const path = require("path");
