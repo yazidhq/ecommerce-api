@@ -53,8 +53,6 @@ const createData = catchAsync(async (req, res, next) => {
 });
 
 const getsData = catchAsync(async (req, res, next) => {
-  const userId = req.user.id;
-
   const result = await product.findAll({
     include: [
       { model: user, attributes: ["firstName", "lastName", "email"] },
@@ -64,7 +62,6 @@ const getsData = catchAsync(async (req, res, next) => {
         include: [{ model: category, attributes: ["name"] }],
       },
     ],
-    where: { createdBy: userId },
   });
 
   if (result) {
@@ -78,7 +75,6 @@ const getsData = catchAsync(async (req, res, next) => {
 });
 
 const getData = catchAsync(async (req, res, next) => {
-  const userId = req.user.id;
   const productId = req.params.id;
 
   const result = await product.findOne({
@@ -92,7 +88,6 @@ const getData = catchAsync(async (req, res, next) => {
     ],
     where: {
       id: productId,
-      createdBy: userId,
     },
   });
 

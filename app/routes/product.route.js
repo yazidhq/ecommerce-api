@@ -29,12 +29,12 @@ module.exports = (app) => {
       upload.array("productImage", 10),
       createData
     )
-    .get(authentication, restrictTo("1"), getsData)
+    .get(getsData)
     .delete(authentication, restrictTo("1"), truncateData);
 
   router
     .route(`${base_url}/:id`)
-    .get(authentication, restrictTo("1"), getData)
+    .get(getData)
     .patch(
       authentication,
       restrictTo("1"),
