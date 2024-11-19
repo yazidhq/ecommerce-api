@@ -16,6 +16,7 @@ const createData = catchAsync(async (req, res, next) => {
     where: {
       id: categoryIds,
     },
+    attributes: ["id", "name"],
   });
 
   if (validCategories.length !== categoryIds.length) {
@@ -40,6 +41,8 @@ const createData = catchAsync(async (req, res, next) => {
   }
 
   if (create) {
+    create.dataValues.categories = validCategories;
+
     return res.status(201).json({
       status: "success",
       data: create,
