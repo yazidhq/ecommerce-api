@@ -44,14 +44,14 @@ const createData = catchAsync(async (req, res, next) => {
     createdBy: userId,
   });
 
-  for (let category of validCategories) {
-    await productcategory.create({
-      productId: create.id,
-      categoryId: category.id,
-    });
-  }
-
   if (create) {
+    for (let category of validCategories) {
+      await productcategory.create({
+        productId: create.id,
+        categoryId: category.id,
+      });
+    }
+
     create.dataValues.categories = validCategories;
 
     return res.status(201).json({
@@ -117,7 +117,7 @@ const updateData = catchAsync(async (req, res, next) => {
   const userId = req.user.id;
   const productId = req.params.id;
 
-  if (data.productUrl || data.productUrl == "") {
+  if (data.productUrl || data.productUrl === "") {
     return next(new AppError("Product's URL update is forbidden", 400));
   }
 
@@ -134,7 +134,7 @@ const updateData = catchAsync(async (req, res, next) => {
 
   const { categoryIds, ...productData } = data;
 
-  let update = null;
+  let update;
   if (req.files) {
     const imagePaths = req.files.map((file) => {
       return `${baseProtocol}/upload/products/${file.filename}`;
@@ -145,52 +145,48 @@ const updateData = catchAsync(async (req, res, next) => {
     update = await getProduct.update({
       ...productData,
       productImage: imagePaths,
-      createdBy: userId,
     });
   } else {
-    update = await getProduct.update({
-      ...productData,
-      createdBy: userId,
-    });
-  }
-
-  const destroyCategory = await productcategory.destroy({
-    where: {
-      productId: update.id,
-    },
-  });
-
-  if (!destroyCategory) {
-    return next(new AppError("Failed delete the product categories", 400));
-  }
-
-  const validCategories = await category.findAll({
-    where: {
-      id: categoryIds,
-    },
-    attributes: ["id", "name"],
-  });
-
-  if (validCategories.length !== categoryIds.length) {
-    return next(new AppError("Some category id are invalid"), 400);
-  }
-
-  for (let category of validCategories) {
-    await productcategory.create({
-      productId: update.id,
-      categoryId: category.id,
-    });
+    update = await getProduct.update(productData);
   }
 
   if (update) {
-    update.dataValues.categories = validCategories;
+    if (categoryIds && categoryIds.length > 0) {
+      await productcategory.destroy({
+        where: {
+          productId: getProduct.id,
+        },
+      });
+
+      const validCategories = await category.findAll({
+        where: {
+          id: categoryIds,
+        },
+        attributes: ["id", "name"],
+      });
+
+      if (validCategories.length !== categoryIds.length) {
+        return next(new AppError("Some category IDs are invalid", 400));
+      }
+
+      await Promise.all(
+        validCategories.map((category) =>
+          productcategory.create({
+            productId: getProduct.id,
+            categoryId: category.id,
+          })
+        )
+      );
+
+      update.dataValues.categories = validCategories;
+    }
 
     return res.status(200).json({
       status: "success",
       data: update,
     });
   } else {
-    return next(new AppError("Failed update the product", 400));
+    return next(new AppError("Failed to update the product", 400));
   }
 });
 
