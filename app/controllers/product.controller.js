@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 const category = require("../db/models/category");
 const product = require("../db/models/product");
 const productcategory = require("../db/models/productcategory");
@@ -23,12 +24,22 @@ const createData = catchAsync(async (req, res, next) => {
     return next(new AppError("Some category id are invalid"), 400);
   }
 
+  const latestProduct = await product.findOne({
+    order: [["createdAt", "DESC"]],
+    paranoid: false,
+  });
+
+  const productUrl = `${baseProtocol}/api/product/${
+    latestProduct ? latestProduct.id + 1 : 1
+  }`;
+
   const imagePaths = req.files.map(
     (file) => `${baseProtocol}/upload/products/${file.filename}`
   );
 
   const create = await product.create({
     ...productData,
+    productUrl: productUrl,
     productImage: imagePaths,
     createdBy: userId,
   });
@@ -105,6 +116,10 @@ const updateData = catchAsync(async (req, res, next) => {
   const data = req.body;
   const userId = req.user.id;
   const productId = req.params.id;
+
+  if (data.productUrl || data.productUrl == "") {
+    return next(new AppError("Product's URL update is forbidden", 400));
+  }
 
   const getProduct = await product.findOne({
     where: {
