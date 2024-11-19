@@ -161,7 +161,6 @@ const truncateData = catchAsync(async (req, res, next) => {
     where: {
       createdBy: userId,
     },
-    force: true,
   });
 
   if (!truncate) {
