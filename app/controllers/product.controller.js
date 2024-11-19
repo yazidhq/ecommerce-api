@@ -144,30 +144,21 @@ const updateData = catchAsync(async (req, res, next) => {
     });
   }
 
-  const existCategory = productcategory
-    .findAll({
-      where: {
-        productId: update.id,
-      },
-    })
-    .then();
+  const destroyCategory = await productcategory.destroy({
+    where: {
+      productId: update.id,
+    },
+  });
 
-  if (existCategory.length !== 0) {
-    const destroyCategory = await productcategory.destroy({
-      where: {
-        productId: update.id,
-      },
-    });
-
-    if (!destroyCategory) {
-      return next(new AppError("Failed delete the product categories", 400));
-    }
+  if (!destroyCategory) {
+    return next(new AppError("Failed delete the product categories", 400));
   }
 
   const validCategories = await category.findAll({
     where: {
       id: categoryIds,
     },
+    attributes: ["id", "name"],
   });
 
   if (validCategories.length !== categoryIds.length) {
@@ -182,6 +173,8 @@ const updateData = catchAsync(async (req, res, next) => {
   }
 
   if (update) {
+    update.dataValues.categories = validCategories;
+
     return res.status(200).json({
       status: "success",
       data: update,
