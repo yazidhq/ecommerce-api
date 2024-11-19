@@ -1,6 +1,5 @@
 const { createLogger, format, transports } = require("winston");
 const path = require("path");
-const winston = require("winston/lib/winston/config");
 
 const logDir = path.join(__dirname, "../logs/error.log");
 
@@ -20,7 +19,7 @@ const logger = createLogger({
   format: format.combine(
     format.timestamp(),
     format.printf(
-      ({ timestamp, level, message }) => `${timestamp} ${level}: ${message}`
+      ({ timestamp, level, message }) => `[${timestamp}] ${level}: ${message}`
     )
   ),
   transports: [
