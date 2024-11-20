@@ -2,11 +2,14 @@ require("dotenv").config({ path: `${process.cwd()}/.env` });
 
 const express = require("express");
 const app = express();
+const cors = require("cors");
+const corsOption = require("./app/middleware/cors.middleware");
 const helmet = require("helmet");
 const limiter = require("./app/middleware/limitter.middleware");
 const sanitizeGlobal = require("./app/middleware/sanitize.middleware");
 const logger = require("./app/utils/logger");
 
+app.use(cors(corsOption));
 app.use(helmet());
 app.use(express.json());
 app.use(express.static("public"));
