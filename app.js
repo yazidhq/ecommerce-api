@@ -12,12 +12,20 @@ const logger = require("./app/utils/logger");
 app.use(cors(corsOption));
 app.use(helmet());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(compression());
 app.use(express.static("public"));
 app.use(limiter);
 app.use(sanitizeGlobal);
 app.use((req, res, next) => {
   logger.info(`${req.method} ${req.url}`);
   next();
+});
+
+app.get("/", (req, res) => {
+  return res.status(200).json({
+    message: "Backend RESTful-API",
+  });
 });
 
 const { glob } = require("glob");
