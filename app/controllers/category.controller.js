@@ -2,7 +2,7 @@ const { Op } = require("sequelize");
 const category = require("../db/models/category");
 const user = require("../db/models/user");
 const AppError = require("../utils/app.error");
-const catchAsync = require("../utils/catch.async.");
+const catchAsync = require("../utils/catch.async");
 const productcategory = require("../db/models/productcategory");
 const product = require("../db/models/product");
 

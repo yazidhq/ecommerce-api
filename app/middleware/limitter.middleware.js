@@ -1,5 +1,5 @@
 const rateLimit = require("express-rate-limit");
-const catchAsync = require("../utils/catch.async.");
+const catchAsync = require("../utils/catch.async");
 const ratelimitlogs = require("../db/models/ratelimitlogs");
 
 const limiter = rateLimit({

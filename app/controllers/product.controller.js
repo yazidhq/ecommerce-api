@@ -4,7 +4,7 @@ const product = require("../db/models/product");
 const productcategory = require("../db/models/productcategory");
 const user = require("../db/models/user");
 const AppError = require("../utils/app.error");
-const catchAsync = require("../utils/catch.async.");
+const catchAsync = require("../utils/catch.async");
 const deleteOldFiles = require("../utils/helper");
 
 const createData = catchAsync(async (req, res, next) => {

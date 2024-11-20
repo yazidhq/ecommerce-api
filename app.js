@@ -24,7 +24,7 @@ glob.sync("./app/routes/*.js").forEach((file) => {
   require(path.resolve(file))(app);
 });
 
-const catchAsync = require("./app/utils/catch.async.");
+const catchAsync = require("./app/utils/catch.async");
 const AppError = require("./app/utils/app.error");
 const globalErrorHandler = require("./app/controllers/error.controller");
 

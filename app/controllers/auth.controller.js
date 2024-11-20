@@ -1,7 +1,7 @@
 const user = require("../db/models/user");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const catchAsync = require("../utils/catch.async.");
+const catchAsync = require("../utils/catch.async");
 const AppError = require("../utils/app.error");
 
 const generateToken = (payload) => {
