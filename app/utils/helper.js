@@ -13,4 +13,4 @@ const deleteOldFiles = (oldFilePaths) => {
   });
 };
 
-module.exports = { deleteOldFiles };
+module.exports = deleteOldFiles;
