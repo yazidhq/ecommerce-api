@@ -13,7 +13,6 @@ app.use(cors(corsOption));
 app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(compression());
 app.use(express.static("public"));
 app.use(limiter);
 app.use(sanitizeGlobal);
