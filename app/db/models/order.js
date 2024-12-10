@@ -12,12 +12,20 @@ const order = sequelize.define(
     },
     userId: {
       type: DataTypes.INTEGER,
+      allowNull: false,
+      validate: {
+        notNull: {
+          msg: "userId cannot be null",
+        },
+      },
     },
     orderDate: {
       type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
     },
     status: {
       type: DataTypes.STRING,
+      defaultValue: "on progress",
     },
     createdAt: {
       allowNull: false,
