@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt");
 const AppError = require("../../utils/app.error");
 const product = require("./product");
 const category = require("./category");
+const order = require("./order");
 
 const user = sequelize.define(
   "user",
@@ -91,5 +92,8 @@ product.belongsTo(user, { foreignKey: "createdBy" });
 
 user.hasMany(category, { foreignKey: "createdBy" });
 category.belongsTo(user, { foreignKey: "createdBy" });
+
+user.hasMany(order, { foreignKey: "userId" });
+order.belongsTo(user, { foreignKey: "userId" });
 
 module.exports = user;
