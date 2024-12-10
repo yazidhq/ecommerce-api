@@ -266,10 +266,6 @@ const deleteData = catchAsync(async (req, res, next) => {
 
   const destroy = getProduct.destroy();
 
-  if (!destroy) {
-    return next(new AppError("Failed delete the product", 400));
-  }
-
   const existCategory = await productcategory.findAll({
     where: {
       productId: productId,
@@ -288,10 +284,14 @@ const deleteData = catchAsync(async (req, res, next) => {
     }
   }
 
-  return res.status(200).json({
-    status: "success",
-    data: "Data deleted successfully",
-  });
+  if (destroy) {
+    return res.status(200).json({
+      status: "success",
+      data: "Data deleted successfully",
+    });
+  } else {
+    return next(new AppError("Failed delete the product", 400));
+  }
 });
 
 module.exports = {
