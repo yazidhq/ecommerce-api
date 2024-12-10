@@ -81,7 +81,7 @@ const getsData = catchAsync(async (req, res, next) => {
       data: result,
     });
   } else {
-    return next(new AppError("Failed to findthe product"), 400);
+    return next(new AppError("Failed to find the product"), 400);
   }
 });
 
